@@ -66,12 +66,12 @@ int main(int argc, char* argv[])
 	return 0;
 }
 
-monitor_unit *find_unit_in_list(GList *list, char* path)
+monitoring_unit *find_unit_in_list(GList *list, char* path)
 {
 	GList *tmp = list;
 	while (tmp != NULL)
 	{
-		monitor_unit *el = (monitor_unit *) tmp->data;
+		monitoring_unit *el = (monitoring_unit *) tmp->data;
 		if (!strcmp(el->path,path)){
 			return el;
 		}
@@ -112,7 +112,7 @@ GList *check_deleted(GList *list, char* base_path)
 	GList *tmp = list;
 	while (tmp != NULL)
 	{
-		monitor_unit *el = (monitor_unit *) tmp->data;
+		monitoring_unit *el = (monitoring_unit *) tmp->data;
 		if (el->watched == 0){
 			c_print(base_path, C_DELETED, el);	
 			tmp = list = g_list_delete_link(list, tmp);
@@ -123,7 +123,7 @@ GList *check_deleted(GList *list, char* base_path)
 	return list;
 }
 
-void c_print(char* base_path, char* change_type, monitor_unit* unit)
+void c_print(char* base_path, char* change_type, monitoring_unit* unit)
 {
 	printf("[%s/]: %s ", base_path, change_type);
 	if (S_ISDIR(unit->mode)){
@@ -147,7 +147,7 @@ GList *walk_dir(GList *list, char *path, char *base_path)
 	DIR *dir;
     struct stat stbuf;
     struct dirent *dp;
-    monitor_unit *el;
+    monitoring_unit *el;
 
     if ((dir = opendir(my_realpath)) == NULL){
 	    printf("Can`t open directory '%s'.\n", my_realpath);
@@ -175,7 +175,7 @@ GList *walk_dir(GList *list, char *path, char *base_path)
 	    if (S_ISDIR(stbuf.st_mode)) {
 	 
 			if (!(el = find_unit_in_list(list, this_relativepath))){
-			    el = new_monitor_unit(this_relativepath, NULL, stbuf.st_mode);
+			    el = new_monitoring_unit(this_relativepath, NULL, stbuf.st_mode);
 			    list = g_list_append(list, el);
 			    c_print(base_path, C_ADDED, el);
 		    }
@@ -188,7 +188,7 @@ GList *walk_dir(GList *list, char *path, char *base_path)
 	    	}
 	    	
 			if (!(el = find_unit_in_list(list, this_relativepath))){
-		    	el = new_monitor_unit(this_relativepath, md5, stbuf.st_mode);
+		    	el = new_monitoring_unit(this_relativepath, md5, stbuf.st_mode);
 	    		list = g_list_append(list, el);
 			    c_print(base_path, C_ADDED, el);
 			}else{
@@ -206,7 +206,7 @@ GList *walk_dir(GList *list, char *path, char *base_path)
 }
 
 void watched_down(gpointer data, gpointer user_data){
-	monitor_unit *el = (monitor_unit*)data;
+	monitoring_unit *el = (monitoring_unit*)data;
 	el->watched = 0;
 }
 
@@ -249,9 +249,9 @@ void *thread_function(void *arg)
 	pthread_exit(NULL);
 }
 
-monitor_unit *new_monitor_unit(char* path, char* md5, mode_t mode)
+monitoring_unit *new_monitoring_unit(char* path, char* md5, mode_t mode)
 {
-	monitor_unit *tmp = (monitor_unit*) malloc(sizeof(monitor_unit));
+	monitoring_unit *tmp = (monitoring_unit*) malloc(sizeof(monitoring_unit));
 	
 	tmp->mode = mode;
 	tmp->watched = 1;

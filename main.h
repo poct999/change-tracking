@@ -19,14 +19,14 @@
 #define C_CHANGED "CHANGED"
 #define C_DELETED "DELETED"
 
-typedef struct monitor_unit{
+typedef struct monitoring_unit{
 	char path[PATH_MAX]; //relative path
 
 	char md5[MD5_DIGEST_LENGTH + 1]; //md5 for files
 	
 	mode_t mode; //stat -> st_mode
 	unsigned char watched; //flag for remove check
-}monitor_unit;
+}monitoring_unit;
 
 int delay; // "t" argument
 int work; // flag for threads
@@ -37,14 +37,14 @@ void ctrlc(int sig);
 /*Thread function*/
 void *thread_function(void *arg); 
 
-/*Get md5*/
+/*Get md5*/ 
 int get_md5sum(char *file_path, char *buf);
 
 /*Recursion parse*/
 GList *walk_dir(GList *list, char *path, char *parent_dir);
 
 /*GList function*/
-monitor_unit *find_unit_in_list(GList *list, char *path); 
+monitoring_unit *find_unit_in_list(GList *list, char *path); 
 GList *check_deleted(GList *list, char* base_path);
 
 /*foreach function*/
@@ -52,10 +52,10 @@ void watched_down(gpointer data, gpointer user_data);
 void free_unit(gpointer data, gpointer user_data);
 
 /*constructor*/
-monitor_unit *new_monitor_unit(char* path, char* md5, mode_t mode);
+monitoring_unit *new_monitoring_unit(char* path, char* md5, mode_t mode);
 
 /*Print changes of files*/
-void c_print(char* base_path, char* change_type, monitor_unit* unit);
+void c_print(char* base_path, char* change_type, monitoring_unit* unit);
 
 
 
