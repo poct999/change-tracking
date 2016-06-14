@@ -29,6 +29,10 @@ typedef struct monitor_unit{
 }monitor_unit;
 
 int delay; // "t" argument
+int work; // flag for threads
+
+/*Handler CTRL+C*/
+void ctrlc(int sig);
 
 /*Thread function*/
 void *thread_function(void *arg); 
@@ -43,8 +47,9 @@ GList *walk_dir(GList *list, char *path, char *parent_dir);
 monitor_unit *find_unit_in_list(GList *list, char *path); 
 GList *check_deleted(GList *list, char* base_path);
 
-/*foreach function (watched = 0)*/
+/*foreach function*/
 void watched_down(gpointer data, gpointer user_data);
+void free_unit(gpointer data, gpointer user_data);
 
 /*constructor*/
 monitor_unit *new_monitor_unit(char* path, char* md5, mode_t mode);

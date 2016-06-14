@@ -2,6 +2,10 @@
  
 int main(int argc, char* argv[])
 {
+    struct sigaction act;
+    act.sa_handler = ctrlc;
+    sigaction(SIGINT, &act, 0);
+
 	int dir_count = 0; 
 	
     //get delay argument
@@ -39,6 +43,7 @@ int main(int argc, char* argv[])
 		perror("Malloc error");
 		exit(EXIT_FAILURE);
 	}
+	work = 1;
     for(i = 0; i < dir_count; i++){
 		if (pthread_create(threads+i, NULL, thread_function, dir_paths+i*MAX_BUF_SIZE) != 0) {
 			perror("Thread creation failed");
@@ -53,6 +58,8 @@ int main(int argc, char* argv[])
 			exit(EXIT_FAILURE);
 		}
 	}
+
+	printf("Exited...\n");
 
 	free(threads);
 	free(dir_paths);
@@ -71,6 +78,11 @@ monitor_unit *find_unit_in_list(GList *list, char* path)
 		tmp = g_list_next(tmp);
 	}
 	return NULL;
+}
+
+void ctrlc(int sig) {
+    printf("\nStopping...\n");
+    work = 0;
 }
 
 int get_md5sum(char *path, char *res)
@@ -198,8 +210,13 @@ void watched_down(gpointer data, gpointer user_data){
 	el->watched = 0;
 }
 
+void free_unit(gpointer data, gpointer user_data){
+	free(data);
+}
+
 void *thread_function(void *arg) 
 {
+	int i;
 	char *my_path = (char*) arg;
 	if (my_path[strlen(my_path)-1] == '/') my_path[strlen(my_path)-1] = '\0';
 
@@ -213,16 +230,22 @@ void *thread_function(void *arg)
     
 	GList *list = NULL;
 
-	while (1){
+	while (work){
 		//printf("********Итерация********\n");
 		
 	    g_list_foreach(list, (GFunc)watched_down, NULL);
 		list = walk_dir(list, "", my_path);
 		list = check_deleted(list, my_path);
 
-		sleep(delay);
+		for (i = 0; i<delay; i++){
+			if (!work) break;
+			sleep(1);
+		}
 	}
 
+	g_list_foreach(list, (GFunc)free_unit, NULL);
+	g_list_free(list);
+	
 	pthread_exit(NULL);
 }
 
