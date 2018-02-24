@@ -8,7 +8,7 @@
 #include <dirent.h>
 #include <limits.h>
 
-#include <openssl/md5.h> 
+#include <openssl/md5.h>
 #include <glib.h> //only for GList
 
 #define MAX_BUF_SIZE 128
@@ -20,12 +20,12 @@
 #define C_DELETED "DELETED"
 
 typedef struct monitoring_unit{
-	char path[PATH_MAX]; //relative path
+    char path[PATH_MAX]; //relative path
 
-	char md5[MD5_DIGEST_LENGTH + 1]; //md5 for files
-	
-	mode_t mode; //stat -> st_mode
-	unsigned char watched; //flag for remove check
+    char md5[MD5_DIGEST_LENGTH + 1]; //md5 for files
+
+    mode_t mode; //stat -> st_mode
+    unsigned char watched; //flag for remove check
 }monitoring_unit;
 
 int delay; // "t" argument
@@ -35,16 +35,16 @@ int work; // flag for threads
 void ctrlc(int sig);
 
 /*Thread function*/
-void *thread_function(void *arg); 
+void *thread_function(void *arg);
 
-/*Get md5*/ 
+/*Get md5*/
 int get_md5sum(char *file_path, char *buf);
 
 /*Recursion parse*/
 GList *walk_dir(GList *list, char *path, char *parent_dir);
 
 /*GList function*/
-monitoring_unit *find_unit_in_list(GList *list, char *path); 
+monitoring_unit *find_unit_in_list(GList *list, char *path);
 GList *check_deleted(GList *list, char* base_path);
 
 /*foreach function*/
